@@ -1,7 +1,7 @@
 {
-    "name": "windy-plugin-template",
-    "version": "5.0.1",
-    "description": "Template for developing Windy Plugins",
+    "name": "windy-plugin-thailand-airspace",
+    "version": "1.0.0",
+    "description": "Interactive Airspace mapping and control zones for Thailand.",
     "main": "dist/plugin.min.js",
     "type": "module",
     "scripts": {
