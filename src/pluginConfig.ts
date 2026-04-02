@@ -1,25 +1,6 @@
 import type { ExternalPluginConfig } from '@windy/interfaces';
 
 const config: ExternalPluginConfig = {
-    name: 'windy-plugin-my-plugin',
-    version: '0.1.0',
-    icon: '🔌',
-    title: 'This is my first plugin',
-    description: 'This is my first plugin.',
-    author: 'John Doe (optional company name)',
-    repository: 'https://github.com/windycom/windy-plugin-template',
-    desktopUI: 'rhpane',
-    mobileUI: 'fullscreen',
-    routerPath: '/my-plugin',
-    private: true,
-};
-
-export default config;
-
-
-import type { ExternalPluginConfig } from '@windy/interfaces';
-
-const config: ExternalPluginConfig = {
     // 1. Give it a unique, descriptive name (must start with 'windy-plugin-')
     name: 'windy-plugin-thailand-airspace', 
     
@@ -37,7 +18,7 @@ const config: ExternalPluginConfig = {
     author: 'FRAGEN', 
     
     // 6. CRITICAL: Update this to YOUR actual GitHub repository link!
-    repository: 'https://github.com/ftchhn-ux/fragen', 
+    repository: 'https://github.com/ftchhn-ux/windy-plugin-template', 
     
     desktopUI: 'rhpane',
     mobileUI: 'fullscreen',
