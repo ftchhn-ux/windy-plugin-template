@@ -15,7 +15,7 @@
     </div>
 
     <div class="donation-container">
-        <a href="https://ko-fi.com/chai43542" target="_blank" rel="noopener noreferrer" class="kofi-button">
+        <a href="https://buy.stripe.com/7sY6oHaPpcwE6sdddc0x200" target="_blank" rel="noopener noreferrer" class="kofi-button">
             ☕ Buy me a coffee
         </a>
     </div>
@@ -49,7 +49,7 @@
                     window.L.geoJSON(feature, {
                         style: { 
                             color: '#ffb84d', weight: 1.5, opacity: 0.9, 
-                            fillColor: '#ff9900', fillOpacity: 0.25, 
+                            fillColor: '#ff9900', fillOpacity: 0.10, 
                             interactive: true 
                         },
                         onEachFeature: (feature, layer) => {
