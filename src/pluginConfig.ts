@@ -5,7 +5,7 @@ const config: ExternalPluginConfig = {
     name: 'windy-plugin-thailand-airspace', 
     
     // 2. Since it works perfectly, let's call it version 1!
-    version: '1.1.0', 
+    version: '1.2.0', 
     
     // 3. A nice aviation icon instead of the default plug
     icon: '✈️', 
