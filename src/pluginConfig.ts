@@ -1,32 +1,32 @@
 import type { ExternalPluginConfig } from '@windy/interfaces';
 
 const config: ExternalPluginConfig = {
-    // 1. Give it a unique, descriptive name (must start with 'windy-plugin-')
+    // 1. Matches your npm package name
     name: 'windy-plugin-thailand-airspace', 
     
-    // 2. Since it works perfectly, let's call it version 1!
-    version: '1.2.0', 
+    // 2. IMPORTANT: Keep this identical to the version in your package.json
+    version: '1.2.3', 
     
-    // 3. A nice aviation icon instead of the default plug
+    // 3. This looks great in the Windy sidebar
     icon: '✈️', 
     
-    // 4. What users will see in the menu
-    title: 'Thailand Airspace TMA', 
-    description: 'Interactive Airspace mapping and control zones for Thailand.',
+    // 4. The user-facing label
+    title: 'Thailand Airspace', 
+    description: 'Interactive Airspace mapping, control zones, and GPX route planning for Thailand.',
     
-    // 5. Put your actual name or developer handle here
+    // 5. Your developer handle
     author: 'FRAGEN', 
     
-    // 6. CRITICAL: Update this to YOUR actual GitHub repository link!
-    repository: 'https://github.com/ftchhn-ux/windy-plugin-template', 
+    // 6. Updated to your renamed repository link
+    repository: 'https://github.com/ftchhn-ux/windy-plugin-thailand-airspace', 
     
     desktopUI: 'rhpane',
     mobileUI: 'fullscreen',
     
-    // 7. Update the URL path to match your new name
+    // 7. The URL path in the browser (e.g., windy.com/plugins/thailand-airspace)
     routerPath: '/thailand-airspace', 
     
-    // 8. CRITICAL: Change this to false so it can be published!
+    // 8. MUST be false for the public to see it
     private: false, 
 };
 
