@@ -1,58 +1,33 @@
-# Windy Plugin Template
+# 🇹🇭 Thailand Airspace & Route Planner for Windy
 
-Template for development of Windy Plugins.
+A comprehensive aviation plugin for Windy.com that visualizes Thailand's airspace zones and provides built-in tools for custom flight path planning.
 
-**Documentation at: [https://docs.windy-plugins.com/](https://docs.windy-plugins.com/)**
+## ✨ Features
 
-**Documentation for the Leaflet GL library is at [https://windycom.github.io/LeafletGL/docs/](https://windycom.github.io/LeafletGL/docs/)**
+* **Airspace Visualization:** Toggle overlays for Thailand's TMA (Terminal Maneuvering Areas), Danger Areas, Restricted Areas, and Prohibited Areas.
+* **Interactive Data:** Click on any airspace polygon to see its official designated name.
+* **Custom Route Drawing:** Use the "Draw Path" tool to click directly on the map and drop waypoints for your intended flight route.
+* **GPX Integration:** Upload standard `.gpx` files to instantly visualize imported flight tracks or routes on the map.
+* **Auto-Zoom:** Automatically fits the map view to your uploaded GPX tracks.
 
-## Quick start
+## 🛠️ How to Use
 
-- Install dependencies with `npm i`
-- Compile the plugin in watch mode with `npm start`
-- Navigate to <https://www.windy.com/developer-mode>
-- Load your plugin from the URL <https://localhost:9999/plugin.js>
-- Code away!
+1. **Airspace Layers:** Use the toggle switches in the plugin menu to show or hide specific types of airspace. The status indicator will show you how many active zones are currently loaded.
+2. **Drawing a Route:** Click **✏️ Draw Path**. Your cursor will change to a crosshair. Click on the map to place waypoints. Click **🛑 Stop Drawing** when finished.
+3. **Uploading a GPX:** Click **📂 Upload GPX** and select a file from your device. The map will automatically draw the route in magenta and zoom to fit.
+4. **Clearing Data:** Click **🗑️ Clear** to remove your drawn or uploaded flight path.
 
-For running the examples:
+## 📸 Screenshots
 
-- Build the desired example in watch mode with `npm run example01` (or `example02`, etc.)
-- Load the example in Windy's developer mode using the URL <https://localhost:9999/example01/plugin.js>
+![Airspace Layers](images/screenshot1.png)
+*Visualizing TMA and Restricted Areas in central Thailand.*
 
-## Known issues
+![Flight Path](images/screenshot2.png)
+*Plotting a custom route using the Draw tool.*
 
-- In *example03* the boat orientation resets after the user zooms.
-This is likely related to Leaflet GL executing `zoom` events in slightly different order.
-Markers now also internally subscribe to the map's `zoom` event to update their CSS positioning,
-which likely executes *after* the user's `zoom` event in this example.
-- In *example04* map clicks within the rendered cycle do not fire the `singleclick` event, as they have before Leaflet LG.
+## ⚠️ Disclaimer
+This plugin is designed for educational and preliminary flight planning purposes only. It should **not** be used as a primary source of navigation. Always consult official, up-to-date aeronautical charts and NOTAMs before flying.
 
-## CHANGELOG
-
--   5.0.0
-    -   Updated example code for the new Leaflet GL map library introduced in client v49.0.0
--   4.2.2
-    -   New plugins are marked as private by default
--   4.2.1
-    -   Updated `@windycom/plugin-devtools` for client v46.1.0
--   4.2.0
-    -   Fixed compiler sourcemap error
--   4.1.0
-    -   Updated plugin upload URL
--   4.0.0
-    -   Updated `@windycom/plugin-devtools` for client v45.0.0
--   3.0.0
-    -   Updated `@windycom/plugin-devtools` for client v42.2.0
--   2.0.0
-    -   Completely new version of the plugin system based in Windy client v42+
--   1.0.0
-    -   New rollup compiler, no more riot architecture
-    -   Updated examples for Windy client v39
--   0.4.0
-    -   Added `plugin-data-loader` to the Plugins API
--   0.3.0
-    -   Examples moved to examples dir
--   0.2.0
-    -   Fixed wrong examples
--   0.1.1
-    -   Initial version of this repo
+## ☕ Support
+If you find this plugin helpful for your flights, consider supporting the development!
+[Buy me a coffee](https://buy.stripe.com/7sY6oHaPpcwE6sdddc0x200)
