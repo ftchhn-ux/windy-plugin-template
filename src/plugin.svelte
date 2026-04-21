@@ -70,6 +70,7 @@
     let layerProhibited = null;
     let layerFlightPath = null; 
 
+    // Keep initial states for module context
     let showTMA = true;
     let showDanger = true;
     let showRestricted = true;
@@ -85,22 +86,33 @@
     import restrictedData from './data/TH Restricted areas.js';
     import prohibitedData from './data/TH Prohibited areas.js';
 
-    let isTMAVisible = showTMA;
-    let isDangerVisible = showDanger;
-    let isRestrictedVisible = showRestricted;
-    let isProhibitedVisible = showProhibited;
+    // --- HELPER FOR LOCAL STORAGE ---
+    const getSavedState = (key, defaultValue) => {
+        try {
+            const saved = localStorage.getItem(`th-airspace-${key}`);
+            return saved !== null ? JSON.parse(saved) : defaultValue;
+        } catch (e) {
+            return defaultValue;
+        }
+    };
+
+    // Initialize from LocalStorage or Defaults
+    let isTMAVisible = getSavedState('tma', true);
+    let isDangerVisible = getSavedState('danger', true);
+    let isRestrictedVisible = getSavedState('restricted', true);
+    let isProhibitedVisible = getSavedState('prohibited', true);
     
     let statusMessage = "Status: Initializing...";
-
     let isDrawing = false;
-    let flightPathCoords = [];
+    
+    // Load saved coordinates and wrap them in Leaflet LatLng objects
+    let flightPathCoords = getSavedState('path', []).map(p => window.L.latLng(p.lat, p.lng));
 
     onMount(() => {
-        if (layerTMA && map.hasLayer(layerTMA)) map.removeLayer(layerTMA);
-        if (layerDanger && map.hasLayer(layerDanger)) map.removeLayer(layerDanger);
-        if (layerRestricted && map.hasLayer(layerRestricted)) map.removeLayer(layerRestricted);
-        if (layerProhibited && map.hasLayer(layerProhibited)) map.removeLayer(layerProhibited);
-        if (layerFlightPath && map.hasLayer(layerFlightPath)) map.removeLayer(layerFlightPath);
+        // Cleanup old layers
+        [layerTMA, layerDanger, layerRestricted, layerProhibited, layerFlightPath].forEach(l => {
+            if (l && map.hasLayer(l)) map.removeLayer(l);
+        });
         
         layerTMA = window.L.layerGroup();
         layerDanger = window.L.layerGroup();
@@ -116,29 +128,23 @@
                 if (actualData && actualData.features) {
                     actualData.features.forEach((feature) => {
                         window.L.geoJSON(feature, {
-                            style: (feat) => {
-                                return {
-                                    color: feat.properties.fill || defaultStyle.color, 
-                                    fillColor: feat.properties.fill || defaultStyle.fillColor, 
-                                    fillOpacity: defaultStyle.fillOpacity, 
-                                    opacity: 0.8, 
-                                    weight: 1.5, 
-                                    interactive: true 
-                                };
-                            },
+                            style: (feat) => ({
+                                color: feat.properties.fill || defaultStyle.color, 
+                                fillColor: feat.properties.fill || defaultStyle.fillColor, 
+                                fillOpacity: defaultStyle.fillOpacity, 
+                                opacity: 0.8, 
+                                weight: 1.5, 
+                                interactive: true 
+                            }),
                             onEachFeature: (feat, layer) => {
                                 const zoneName = feat.properties?.name || "Unknown Airspace Zone";
-                                layer.bindPopup(
-                                    `<div style="font-size: 14px; font-weight: bold; color: #333; text-align: center;">${zoneName}</div>`
-                                );
+                                layer.bindPopup(`<div style="font-size: 14px; font-weight: bold; color: #333; text-align: center;">${zoneName}</div>`);
                             }
                         }).addTo(targetLayer);
                         count++;
                     });
                 }
-            } catch (err) {
-                console.error("Drawing Error:", err);
-            }
+            } catch (err) { console.error("Drawing Error:", err); }
         }
 
         drawGeoJSON(tmaData, layerTMA, { color: '#1E90FF', fillColor: '#1E90FF', fillOpacity: 0.20 });
@@ -148,10 +154,14 @@
 
         statusMessage = `Active: ${count} Total Airspace Zones`;
         
+        // Restore layer visibility on mount
         if (isTMAVisible) layerTMA.addTo(map);
         if (isDangerVisible) layerDanger.addTo(map);
         if (isRestrictedVisible) layerRestricted.addTo(map);
         if (isProhibitedVisible) layerProhibited.addTo(map);
+
+        // Restore flight path if coordinates exist
+        if (flightPathCoords.length > 0) renderFlightPath();
     });
 
     onDestroy(() => {
@@ -168,11 +178,27 @@
         }
     }
 
-    $: { showTMA = isTMAVisible; toggleLayer(layerTMA, isTMAVisible); }
-    $: { showDanger = isDangerVisible; toggleLayer(layerDanger, isDangerVisible); }
-    $: { showRestricted = isRestrictedVisible; toggleLayer(layerRestricted, isRestrictedVisible); }
-    $: { showProhibited = isProhibitedVisible; toggleLayer(layerProhibited, isProhibitedVisible); }
-
+    // REACTIVE PERSISTENCE: Save settings whenever they change
+    $: { 
+        showTMA = isTMAVisible; 
+        toggleLayer(layerTMA, isTMAVisible); 
+        localStorage.setItem('th-airspace-tma', JSON.stringify(isTMAVisible));
+    }
+    $: { 
+        showDanger = isDangerVisible; 
+        toggleLayer(layerDanger, isDangerVisible); 
+        localStorage.setItem('th-airspace-danger', JSON.stringify(isDangerVisible));
+    }
+    $: { 
+        showRestricted = isRestrictedVisible; 
+        toggleLayer(layerRestricted, isRestrictedVisible); 
+        localStorage.setItem('th-airspace-restricted', JSON.stringify(isRestrictedVisible));
+    }
+    $: { 
+        showProhibited = isProhibitedVisible; 
+        toggleLayer(layerProhibited, isProhibitedVisible); 
+        localStorage.setItem('th-airspace-prohibited', JSON.stringify(isProhibitedVisible));
+    }
 
     // ==========================================
     // FLIGHT PATH LOGIC
@@ -182,11 +208,14 @@
         if (!layerFlightPath) return;
         layerFlightPath.clearLayers();
 
+        // Save current path to storage
+        localStorage.setItem('th-airspace-path', JSON.stringify(flightPathCoords));
+
         if (flightPathCoords.length === 0) return;
 
         if (flightPathCoords.length > 1) {
             window.L.polyline(flightPathCoords, {
-                color: '#FF00FF', // Changed to Magenta
+                color: '#FF00FF',
                 weight: 2,
                 opacity: 0.8,
                 dashArray: '8, 8'
@@ -197,7 +226,7 @@
             const marker = window.L.circleMarker(latlng, {
                 radius: 5,
                 fillColor: '#ffffff',
-                color: '#FF00FF', // Changed to Magenta
+                color: '#FF00FF',
                 weight: 2,
                 opacity: 0.8,
                 fillOpacity: 1
@@ -207,17 +236,11 @@
         });
     }
 
-    // THE FIX: We use a native DOM event listener that runs before Leaflet's popups
     function handleDrawingClick(e) {
         if (!isDrawing) return;
-
-        // Force stop the click from reaching Windy POIs or your airspaces
         e.stopPropagation();
         e.preventDefault();
-
-        // Convert the raw browser mouse click into Map Latitude/Longitude
         const latlng = map.mouseEventToLatLng(e);
-        
         flightPathCoords = [...flightPathCoords, latlng];
         renderFlightPath();
     }
@@ -225,10 +248,7 @@
     function toggleDrawingMode() {
         isDrawing = !isDrawing;
         const mapContainer = map.getContainer();
-
         if (isDrawing) {
-            // "capture: true" is the secret ingredient here. It catches the event on the way DOWN,
-            // before the POI layers (which catch it on the way UP) even know a click happened.
             mapContainer.addEventListener('click', handleDrawingClick, true);
             mapContainer.style.cursor = 'crosshair';
         } else {
@@ -252,20 +272,14 @@
             const xmlText = e.target.result;
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
             flightPathCoords = [];
-
             let points = Array.from(xmlDoc.getElementsByTagName("trkpt"));
-            if (points.length === 0) {
-                points = Array.from(xmlDoc.getElementsByTagName("rtept"));
-            }
+            if (points.length === 0) points = Array.from(xmlDoc.getElementsByTagName("rtept"));
 
             points.forEach(pt => {
                 const lat = parseFloat(pt.getAttribute("lat"));
                 const lon = parseFloat(pt.getAttribute("lon"));
-                if (!isNaN(lat) && !isNaN(lon)) {
-                    flightPathCoords.push(window.L.latLng(lat, lon));
-                }
+                if (!isNaN(lat) && !isNaN(lon)) flightPathCoords.push(window.L.latLng(lat, lon));
             });
 
             if (flightPathCoords.length > 0) {
@@ -276,89 +290,34 @@
                 alert("Could not find any standard track/route points in this GPX file.");
             }
         };
-        
         reader.readAsText(file);
         event.target.value = ''; 
     }
 </script>
 
 <style>
+    /* CSS remains exactly the same as your provided code */
     .plugin__content { padding: 15px; color: white; }
     h4 { margin-bottom: 10px; }
-    
     .toggle-container { display: flex; align-items: center; margin-top: 10px; }
     .toggle-label { margin-left: 10px; font-size: 15px; font-weight: bold; cursor: pointer; }
-    
     .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; }
     .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
-    
     input:checked + .slider { background-color: #ff9900; }
     input:checked + .slider:before { transform: translateX(18px); }
     .slider.round { border-radius: 22px; }
     .slider.round:before { border-radius: 50%; }
-
-    .divider {
-        border: 0;
-        border-top: 1px solid #555;
-        margin: 20px 0 15px 0;
-    }
-
-    .flight-controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 10px;
-    }
-
-    .action-button {
-        background-color: #444;
-        color: white;
-        border: 1px solid #666;
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: bold;
-        transition: all 0.2s;
-        text-align: center;
-    }
-
+    .divider { border: 0; border-top: 1px solid #555; margin: 20px 0 15px 0; }
+    .flight-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .action-button { background-color: #444; color: white; border: 1px solid #666; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s; text-align: center; }
     .action-button:hover { background-color: #555; }
-    
     .upload-btn { cursor: pointer; }
-    
-    .active-draw {
-        background-color: #ff4444;
-        border-color: #ff4444;
-    }
+    .active-draw { background-color: #ff4444; border-color: #ff4444; }
     .active-draw:hover { background-color: #cc0000; }
-
     .clear-btn:hover { background-color: #ff9900; border-color: #ff9900;}
-
-    .donation-container { 
-        margin-top: 25px; 
-        padding-top: 15px;
-        border-top: 1px solid #555; 
-    }
-    
-    .kofi-button {
-        display: inline-block;
-        background-color: #29abe0; 
-        color: white !important;
-        padding: 8px 16px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 14px;
-        transition: background-color 0.2s;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    
-    .kofi-button:hover {
-        background-color: #1a8fbf; 
-        text-decoration: none;
-    }
+    .donation-container { margin-top: 25px; padding-top: 15px; border-top: 1px solid #555; }
+    .kofi-button { display: inline-block; background-color: #29abe0; color: white !important; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; transition: background-color 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .kofi-button:hover { background-color: #1a8fbf; text-decoration: none; }
 </style>
