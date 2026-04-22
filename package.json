@@ -1,6 +1,6 @@
 {
     "name": "windy-plugin-thailand-airspace",
-    "version": "1.2.6",
+    "version": "1.2.7",
     "description": "Interactive Airspace mapping and control zones for Thailand, including GPX upload and custom flight path drawing.",
     "main": "dist/plugin.min.js",
     "type": "module",
@@ -32,7 +32,7 @@
         "flight-planning",
         "aviation"
     ],
-    "author": "KITTICHAI CH.",
+    "author": "FRAGEN",
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/ftchhn-ux/windy-plugin-thailand-airspace/issues"
